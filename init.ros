@@ -1,0 +1,38 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+(eval-when (:load-toplevel :compile-toplevel :execute)
+  (ql:quickload :uiop)
+  (ql:quickload :cl-emb)
+  (ql:quickload :alexandria))
+
+(defpackage :ros.script.init.ros.3662017526
+  (:use :cl))
+(in-package :ros.script.init.ros.3662017526)
+
+(defun error-quit (msg)
+  (format t "ERROR: ~F~%" msg)
+  (uiop:quit))
+
+(defun main (&rest argv)
+  (declare (ignorable argv))
+  (when (< (length argv) 2)
+    (error-quit "Please input a 'directory' name and a 'file' name"))
+  (let* ((dir (car argv))
+         (name (cadr argv))
+         (file (make-pathname :name name
+                              :directory `(:relative ,dir)
+                              :type "lisp")))
+    (unless (uiop:directory-exists-p dir)
+      (error-quit (format nil "The directory '~F' is not found" dir)))
+    (when (uiop:probe-file* file)
+      (error-quit (format nil "The file '~F' is already exist" file))) 
+    (cl-emb:register-emb "skelton" (alexandria:read-file-into-string #p"skelton/skelton.lisp"))
+    (with-open-file (out file
+                         :direction :output
+                         :if-does-not-exist :create)
+      (princ (cl-emb:execute-emb "skelton" :env `(:name ,name))
+             out)
+      (format t "Create ~F~%" file))))

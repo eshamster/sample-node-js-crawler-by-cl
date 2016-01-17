@@ -1,0 +1,44 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+(eval-when (:load-toplevel :compile-toplevel :execute)
+  (ql:quickload :uiop))
+
+(defpackage :ros.script.run.ros.3661998313
+  (:use :cl))
+(in-package :ros.script.run.ros.3661998313)
+
+(defun error-quit (msg)
+  (format t "ERROR: ~F~%" msg)
+  (uiop:quit))
+
+(defvar *work-dir* "WORK/")
+
+(defun main (&rest argv)
+  (declare (ignorable argv))
+  (when (< (length argv) 2)
+    (error-quit "Please input a 'directory' name and a 'file' name (& rest is argv)"))
+  (let* ((dir (car argv))
+         (name (cadr argv))
+         (lisp-file (make-pathname :name name
+                                   :directory `(:relative ,dir)
+                                   :type "lisp"))
+         (js-file (make-pathname :name name
+                                 :directory `(:relative ,*work-dir*)
+                                 :type "js")))
+    (unless (uiop:probe-file* lisp-file)
+      (error-quit (format nil "The file '~F' is not exist" file)))
+    (load lisp-file)
+    (ensure-directories-exist *work-dir*)
+    (with-open-file (out js-file
+                         :direction :output
+                         :if-exists :supersede
+                         :if-does-not-exist :create)
+      (princ (funcall (intern "MAIN" (string-upcase name)) (cddr argv))
+             out)
+      (format t "Create ~F~%" js-file))
+    (uiop:run-program (format nil "(cd ~F ; node ~F.js)" *work-dir* name)
+                      :output *standard-output*
+                      :error-output *error-output*)))
