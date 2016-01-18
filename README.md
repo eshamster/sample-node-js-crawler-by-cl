@@ -33,6 +33,8 @@ $ ./init.ros part02 download-node
 
 ## run.rosで実行
 
+下記例では、WORKディレクトリ配下に`WORK/download-node.js`を作成し、WORKディレクトリ配下でnode.jsから同JavaScriptファイルを実行します。
+
 ```bash
 $ ./init.ros part02 download-node (引数)
 ```
