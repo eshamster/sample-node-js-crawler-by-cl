@@ -31,9 +31,14 @@ exec ros -Q -- $0 "$@"
 (defun run-shell (com)
   (uiop:run-program com :output *standard-output* :error-output *error-output*))
 
+(defun check-if-installed (lib-name)
+  (probe-file (format nil "./node_modules/~F/" lib-name)))
+
 (defun install-by-npm (lst)
-  (when lst
-    (run-shell (format nil "npm install ~F" (join lst)))))
+  (let ((not-installed-lst (remove-if #'check-if-installed lst)))
+    (when not-installed-lst
+      (format t "Install npm modules: ~A~%" not-installed-lst)
+      (run-shell (format nil "npm install ~F" (join not-installed-lst))))))
 
 (defun output-js (js-file app-name args)
   (ensure-directories-exist (uiop:pathname-directory-pathname js-file))
