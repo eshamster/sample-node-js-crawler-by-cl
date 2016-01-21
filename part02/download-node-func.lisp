@@ -5,8 +5,11 @@
   (:use :cl
         :parenscript
         :ps-experiment)
-  (:export main))
+  (:export main
+           *dependencies*))
 (in-package :download-node-func)
+
+(defvar *dependencies* '())
 
 (defun.ps download (url savepath callback)
   (let* ((http (require 'http))

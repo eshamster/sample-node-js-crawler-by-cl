@@ -5,8 +5,11 @@
   (:use :cl
         :parenscript
         :ps-experiment)
-  (:export main))
+  (:export main 
+           *dependencies*))
 (in-package :download-node)
+
+(defvar *dependencies* '())
 
 (defvar.ps url "http://kujirahand.com/")
 (defvar.ps savepath "test.html")

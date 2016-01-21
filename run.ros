@@ -4,10 +4,12 @@
 exec ros -Q -- $0 "$@"
 |#
 (eval-when (:load-toplevel :compile-toplevel :execute)
-  (ql:quickload :uiop))
+  (ql:quickload :uiop)
+  (ql:quickload :anaphora))
 
 (defpackage :ros.script.run.ros.3661998313
-  (:use :cl))
+  (:use :cl
+        :anaphora))
 (in-package :ros.script.run.ros.3661998313)
 
 (defun error-quit (msg)
@@ -15,6 +17,23 @@ exec ros -Q -- $0 "$@"
   (uiop:quit))
 
 (defvar *work-dir* "WORK/")
+
+(defun join (lst &optional (sep " "))
+  (with-output-to-string (s)
+    (labels ((rec (rest)
+               (when rest
+                 (princ (car rest) s)
+                 (when (cdr rest)
+                   (princ sep s)
+                   (rec (cdr rest))))))
+      (rec lst))))
+
+(defun run-shell (com)
+  (uiop:run-program com :output *standard-output* :error-output *error-output*))
+
+(defun install-by-npm (lst)
+  (when lst
+    (run-shell (format nil "npm install ~F" (join lst)))))
 
 (defun main (&rest argv)
   (declare (ignorable argv))
@@ -39,6 +58,5 @@ exec ros -Q -- $0 "$@"
       (princ (funcall (intern "MAIN" (string-upcase name)) (cddr argv))
              out)
       (format t "Create ~F~%" js-file))
-    (uiop:run-program (format nil "(cd ~F ; node ~F.js)" *work-dir* name)
-                      :output *standard-output*
-                      :error-output *error-output*)))
+    (install-by-npm (symbol-value (intern "*DEPENDENCIES*" (string-upcase name))))
+    (run-shell (format nil "(cd ~F ; node ~F.js)" *work-dir* name))))
