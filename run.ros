@@ -29,7 +29,10 @@ exec ros -Q -- $0 "$@"
       (rec lst))))
 
 (defun run-shell (com)
-  (uiop:run-program com :output *standard-output* :error-output *error-output*))
+  (uiop:run-program com
+                    :output *standard-output*
+                    :error-output *error-output*
+                    :ignore-error-status t))
 
 (defun check-if-installed (lib-name)
   (probe-file (format nil "./node_modules/~F/" lib-name)))
