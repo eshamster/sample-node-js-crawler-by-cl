@@ -24,8 +24,8 @@
                       (when err
                         (console.log "Error: " err)
                         (return))
-                      ((-- ($ "a")
-                           (each (lambda ()
-                                   (console.log (+ (-- ($ this) (text))
-                                                   ":"
-                                                   (-- ($ this) (attr "href")))))))))))))
+                      (-- ($ "a")
+                          (each (lambda ()
+                                  (console.log (+ (-- ($ this) (text))
+                                                  ":"
+                                                  (-- ($ this) (attr "href"))))))))))))
