@@ -43,15 +43,20 @@ exec ros -Q -- $0 "$@"
       (format t "Install npm modules: ~A~%" not-installed-lst)
       (run-shell (format nil "npm install ~F" (join not-installed-lst))))))
 
-(defun output-js (js-file app-name args)
+(defun output-js (js-file pack-name args)
   (ensure-directories-exist (uiop:pathname-directory-pathname js-file))
   (with-open-file (out js-file
                        :direction :output
                        :if-exists :supersede
                        :if-does-not-exist :create)
-    (princ (funcall (intern "MAIN" (string-upcase app-name)) args)
+    (princ (funcall (intern "MAIN" (string-upcase pack-name)) args)
            out)
     (format t "Create ~F~%" js-file)))
+
+(defun get-or-default (sym-name pack-name default)
+  (aif (find-symbol sym-name pack-name)
+       (symbol-value it)
+       default))
 
 (defun main (&rest argv)
   (declare (ignorable argv))
@@ -59,6 +64,7 @@ exec ros -Q -- $0 "$@"
     (error-quit "Please input a 'directory' name and a 'file' name (& rest is argv)"))
   (let* ((dir (car argv))
          (name (cadr argv))
+         (pack-name (string-upcase name))
          (lisp-file (make-pathname :name name
                                    :directory `(:relative ,dir)
                                    :type "lisp"))
@@ -68,6 +74,9 @@ exec ros -Q -- $0 "$@"
     (unless (uiop:probe-file* lisp-file)
       (error-quit (format nil "The file '~F' is not exist" file)))
     (load lisp-file)
-    (output-js js-file name (cddr argv))
-    (install-by-npm (symbol-value (intern "*DEPENDENCIES*" (string-upcase name))))
-    (run-shell (format nil "(cd ~F ; node ~F.js)" *work-dir* name))))
+    (output-js js-file pack-name (cddr argv))
+    (install-by-npm (symbol-value (intern "*DEPENDENCIES*" pack-name)))
+    (run-shell (format nil "(cd ~F ; ~F ~F.js)"
+                       *work-dir*
+                       (get-or-default "*EXECUTOR*" pack-name "exit")
+                       name))))
