@@ -72,7 +72,7 @@ exec ros -Q -- $0 "$@"
                                  :directory `(:relative ,*work-dir*)
                                  :type "js")))
     (unless (uiop:probe-file* lisp-file)
-      (error-quit (format nil "The file '~F' is not exist" file)))
+      (error-quit (format nil "The file '~F' is not exist" lisp-file)))
     (load lisp-file)
     (output-js js-file pack-name (cddr argv))
     (install-by-npm (symbol-value (intern "*DEPENDENCIES*" pack-name)))
