@@ -78,5 +78,5 @@ exec ros -Q -- $0 "$@"
     (install-by-npm (symbol-value (intern "*DEPENDENCIES*" pack-name)))
     (run-shell (format nil "(cd ~F ; ~F ~F.js)"
                        *work-dir*
-                       (get-or-default "*EXECUTOR*" pack-name "exit")
+                       (get-or-default "*EXECUTOR*" pack-name "node")
                        name))))
