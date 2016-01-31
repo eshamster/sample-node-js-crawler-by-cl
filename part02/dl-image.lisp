@@ -1,4 +1,5 @@
 (ql:quickload :ps-experiment)
+(ql:quickload :quri)
 
 (in-package :cl-user)
 (defpackage dl-image
@@ -23,9 +24,11 @@
   (unless (*fs*.exists-sync *save-dir*)
     (*fs*.mkdir-sync *save-dir*)))
 
+(defmacro.ps url-encode (str)
+  (quri:url-encode str))
+
 (defun.ps download-images ()
-  "「ハムスター」: Parenscriptによるユニコード変換とcheerioによるユニコード変換が衝突するためか、日本語でURLを指定するとうまくいかない"
-  (let ((url "https://ja.wikipedia.org/wiki/%E3%83%8F%E3%83%A0%E3%82%B9%E3%82%BF%E3%83%BC")
+  (let ((url (+ "https://ja.wikipedia.org/wiki/" (url-encode "ハムスター")))
         (param (make-hash-table)))
     (*client*.fetch
      url param
