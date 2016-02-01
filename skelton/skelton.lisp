@@ -1,4 +1,4 @@
-(ql:quickload :ps-experiment)
+(ql:quickload :ps-experiment :silent t)
 
 (in-package :cl-user)
 (defpackage <% @var name %>
