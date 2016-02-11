@@ -26,7 +26,7 @@ exec ros -Q -- $0 "$@"
                               :type "lisp")))
     (unless (uiop:directory-exists-p dir)
       (error-quit (format nil "The directory '~F' is not found" dir)))
-    (when (uiop:probe-file* file)
+    (when (probe-file file)
       (error-quit (format nil "The file '~F' is already exist" file))) 
     (cl-emb:register-emb "skelton" (alexandria:read-file-into-string #p"skelton/skelton.lisp"))
     (with-open-file (out file

@@ -71,7 +71,7 @@ exec ros -Q -- $0 "$@"
          (js-file (make-pathname :name name
                                  :directory `(:relative ,*work-dir*)
                                  :type "js")))
-    (unless (uiop:probe-file* lisp-file)
+    (unless (probe-file lisp-file)
       (error-quit (format nil "The file '~F' is not exist" lisp-file)))
     (load lisp-file)
     (output-js js-file pack-name (cddr argv))
